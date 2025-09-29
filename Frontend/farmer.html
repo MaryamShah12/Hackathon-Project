@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harvest Hub - Farmer Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">🌱 Harvest Hub</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="farmer.html" class="active">Farmer Dashboard</a></li>
+      <li><a href="#" id="logoutBtn">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- Dashboard Section -->
+  <section class="dashboard-section">
+    <div class="dashboard-container">
+      <h2>👩‍🌾 Farmer Dashboard</h2>
+      <p>Welcome, <span id="farmerName"></span>! Add your surplus crops below.</p>
+
+      <!-- Add Listing Form -->
+      <form id="listingForm" class="listing-form">
+        <input type="text" id="cropName" placeholder="Crop Name (e.g. Tomatoes)" required>
+        <input type="number" id="cropQuantity" placeholder="Quantityrelax
+        <input type="number" id="price" placeholder="Price (e.g., 10.50)" step="0.01" min="0">
+        <input type="date" id="availableDate" required>
+        <select id="listingType" required>
+          <option value="sell">Sell (Fair Price)</option>
+          <option value="barter">Barter</option>
+          <option value="donate">Donate</option>
+        </select>
+        <button type="submit" class="btn">Add Listing</button>
+      </form>
+
+      <!-- Listings Display -->
+      <div class="listing-display">
+        <h3>Your Crop Listings</h3>
+        <ul id="listingList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  const role = "farmer"; // 👩‍🌾 only farmers allowed
+  </script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

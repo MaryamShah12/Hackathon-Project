@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard - Harvest Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">🌱 Harvest Hub</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="farmer.html">Farmer</a></li>
+          <li><a href="buyer.html" class="active">Buyer</a></li>
+          <li><a href="ngo.html">NGO</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="register.html">Register</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="card">
+          <h3>Filters</h3>
+          <input id="search" placeholder="Search crops..." />
+          <label>Type</label>
+          <select id="filterType"><option value="all">All</option><option value="sell">Sell</option><option value="barter">Barter</option><option value="donate">Donate</option></select>
+          <label>Sort by</label>
+          <select id="sortBy"><option value="new">Newest</option><option value="priceAsc">Price ↑</option><option value="priceDesc">Price ↓</option></select>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <h2>Available Listings</h2>
+          <p class="muted">Buy directly from farmers at fair prices</p>
+        </div>
+        <div id="listings" class="listings-grid" style="margin-top:12px"></div>
+        <div id="panel" class="card" style="margin-top:12px;display:none"></div>
+        <footer>🛒 Harvest Hub — Buyer Dashboard</footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  const role = "buyer"; // 🛒 only buyers allowed
+</script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>

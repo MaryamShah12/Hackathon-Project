@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NGO Dashboard - Harvest Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">🌱 Harvest Hub</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="farmer.html">Farmer</a></li>
+          <li><a href="buyer.html">Buyer</a></li>
+          <li><a href="ngo.html" class="active">NGO</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="register.html">Register</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="card">
+          <h3>Filters</h3>
+          <input id="search" placeholder="Search donations..." />
+          <label>Type</label>
+          <select id="filterType"><option value="all">All</option><option value="donate">Donations Only</option></select>
+          <label>Sort by</label>
+          <select id="sortBy"><option value="new">Newest</option><option value="priceAsc">Price ↑</option><option value="priceDesc">Price ↓</option></select>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <h2>Community Donations</h2>
+          <p class="muted">Claim surplus crops for food banks & charity</p>
+        </div>
+        <div id="listings" class="listings-grid" style="margin-top:12px"></div>
+        <div id="panel" class="card" style="margin-top:12px;display:none"></div>
+        <footer>🏢 Harvest Hub — NGO Dashboard</footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  const role = "ngo"; // 🏢 only NGOs allowed
+</script>
+<script src="dashboard.js"></script>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
