@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - Harvest Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .payment-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 32px;
+    }
+    .bank-info {
+      background: var(--off-white);
+      padding: 24px;
+      border-radius: var(--radius);
+      margin: 24px 0;
+      border: 2px solid var(--border);
+    }
+    .bank-info h3 {
+      color: var(--deep-green);
+      margin-bottom: 16px;
+    }
+    .bank-info p {
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    .bank-info strong {
+      color: var(--fresh-green);
+    }
+    .file-upload {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      margin: 24px 0;
+    }
+    .file-upload:hover {
+      border-color: var(--fresh-green);
+      background: var(--off-white);
+    }
+    .file-upload.has-file {
+      border-color: var(--success);
+      background: rgba(76, 175, 80, 0.05);
+    }
+    #preview {
+      max-width: 100%;
+      max-height: 300px;
+      margin-top: 16px;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="buyer.html">Back to Dashboard</a></li>
+        <li><a id="logoutBtn"><i data-lucide="log-out"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="payment-container">
+  <div class="card">
+    <h2><i data-lucide="credit-card"></i> Complete Payment</h2>
+    <p class="muted">Review the details and upload payment proof</p>
+
+    <div id="listingDetails" style="margin: 24px 0;"></div>
+
+    <div class="bank-info">
+      <h3><i data-lucide="building"></i> Bank Account Details</h3>
+      <p><strong>Bank Name:</strong> National Bank of Agriculture</p>
+      <p><strong>Account Title:</strong> Harvest Hub Platform</p>
+      <p><strong>Account Number:</strong> 1234-5678-9012-3456</p>
+      <p><strong>IBAN:</strong> PK12NBPA1234567890123456</p>
+    </div>
+
+    <div class="field">
+      <label for="fileUpload">Upload Payment Proof *</label>
+      <div class="file-upload" id="fileUploadArea">
+        <i data-lucide="upload" style="width: 48px; height: 48px; color: var(--muted); margin: 0 auto;"></i>
+        <p style="margin-top: 12px; color: var(--muted);">Click to upload or drag and drop</p>
+        <p style="font-size: 0.85rem; color: var(--muted);">PNG, JPG or JPEG (MAX. 5MB)</p>
+        <input type="file" id="fileUpload" accept="image/png,image/jpeg,image/jpg" style="display: none;">
+      </div>
+      <img id="preview" style="display: none;">
+    </div>
+
+    <button id="submitBtn" class="btn" style="width: 100%;" disabled>
+      <i data-lucide="check-circle"></i> Submit Payment Proof
+    </button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+lucide.createIcons();
+
+const activeUser = JSON.parse(localStorage.getItem("activeUser"));
+if (!activeUser || activeUser.role !== "buyer") {
+  alert("Unauthorized! Please login as Buyer.");
+  window.location.href = "login.html";
+}
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("activeUser");
+  window.location.href = "login.html";
+});
+
+// Get listing ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const listingId = urlParams.get('listing');
+
+if (!listingId) {
+  alert("Invalid listing!");
+  window.location.href = "buyer.html";
+}
+
+// Fetch and display listing details
+async function loadListingDetails() {
+  try {
+    const response = await fetch('http://localhost:5000/api/listings');
+    const listings = await response.json();
+    const listing = listings.find(l => l.id == listingId);
+    
+    if (!listing) {
+      alert("Listing not found!");
+      window.location.href = "buyer.html";
+      return;
+    }
+
+    document.getElementById('listingDetails').innerHTML = `
+      <h3>${listing.title}</h3>
+      <p><strong>Quantity:</strong> ${listing.quantity}</p>
+      <p><strong>Price:</strong> Rs. ${listing.price ? listing.price.toFixed(2) : 'N/A'}</p>
+      <p><strong>Farmer:</strong> ${listing.farmer_name}</p>
+    `;
+  } catch (error) {
+    console.error('Error loading listing:', error);
+    alert('Failed to load listing details');
+  }
+}
+
+loadListingDetails();
+
+// File upload handling
+let selectedFile = null;
+const fileUploadArea = document.getElementById('fileUploadArea');
+const fileInput = document.getElementById('fileUpload');
+const preview = document.getElementById('preview');
+const submitBtn = document.getElementById('submitBtn');
+
+fileUploadArea.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+    
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      preview.src = event.target.result;
+      preview.style.display = 'block';
+      fileUploadArea.classList.add('has-file');
+      submitBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Submit payment proof
+submitBtn.addEventListener('click', async () => {
+  if (!selectedFile) {
+    alert('Please upload payment proof');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i data-lucide="loader"></i> Submitting...';
+  lucide.createIcons();
+
+  try {
+    // Convert image to base64
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Image = event.target.result;
+      
+      const response = await fetch('http://localhost:5000/api/purchase-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listing_id: listingId,
+          buyer_id: activeUser.username,
+          payment_proof: base64Image
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+  alert('Payment proof submitted! Check "My Orders" to track status.');
+  window.location.href = 'buyer_orders.html';
+} else {
+        alert('Error: ' + result.error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check-circle"></i> Submit Payment Proof';
+        lucide.createIcons();
+      }
+    };
+    reader.readAsDataURL(selectedFile);
+  } catch (error) {
+    console.error('Error submitting payment:', error);
+    alert('Failed to submit payment proof');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i data-lucide="check-circle"></i> Submit Payment Proof';
+    lucide.createIcons();
+  }
+});
+</script>
+</body>
+</html>

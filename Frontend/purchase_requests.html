@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Requests - Harvest Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .request-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px solid var(--border-light);
+      transition: all var(--transition-base);
+    }
+    .request-card:hover {
+      border-color: var(--fresh-green);
+      box-shadow: var(--shadow-md);
+    }
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .status-pending {
+      background: rgba(255, 179, 0, 0.15);
+      color: var(--warning);
+    }
+    .status-approved {
+      background: rgba(76, 175, 80, 0.15);
+      color: var(--success);
+    }
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+    .proof-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: var(--radius-sm);
+      margin: 16px 0;
+      cursor: pointer;
+      border: 2px solid var(--border);
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
+    <ul class="nav-links">
+      <li><a href="farmer.html">Dashboard</a></li>
+      <li><a href="purchase_requests.html" class="active">Purchase Requests</a></li>
+      <li><a href="farmer_analytics.html">Analytics</a></li>
+      <li><a id="logoutBtn"><i data-lucide="log-out"></i></a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="dashboard-section">
+  <div class="dashboard-container">
+    <div class="welcome-banner">
+      <i data-lucide="shopping-bag"></i>
+      <div>
+        <h2>Purchase Requests</h2>
+        <p>Review and approve buyer payment proofs</p>
+      </div>
+    </div>
+
+    <div id="requestsContainer"></div>
+  </div>
+</section>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+lucide.createIcons();
+
+const activeUser = JSON.parse(localStorage.getItem("activeUser"));
+if (!activeUser || activeUser.role !== "farmer") {
+  alert("Unauthorized! Please login as Farmer.");
+  window.location.href = "login.html";
+}
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("activeUser");
+  window.location.href = "login.html";
+});
+
+async function loadPurchaseRequests() {
+  try {
+    const response = await fetch(`http://localhost:5000/api/purchase-requests/farmer/${activeUser.username}`);
+    const requests = await response.json();
+    
+    const container = document.getElementById('requestsContainer');
+    
+    if (requests.length === 0) {
+      container.innerHTML = '<p class="muted text-center">No purchase requests yet.</p>';
+      return;
+    }
+
+    container.innerHTML = requests.map(req => `
+      <div class="request-card">
+        <div class="request-header">
+          <h3>${req.crop_title}</h3>
+          <span class="status-badge status-${req.status}">${req.status.toUpperCase()}</span>
+        </div>
+        <p><strong>Buyer:</strong> ${req.buyer_id}</p>
+        <p><strong>Quantity:</strong> ${req.quantity}</p>
+        <p><strong>Price:</strong> Rs. ${req.price ? req.price.toFixed(2) : 'N/A'}</p>
+        <p><strong>Requested:</strong> ${new Date(req.created_at).toLocaleString()}</p>
+        
+        <div>
+          <strong>Payment Proof:</strong>
+          <img src="${req.payment_proof}" class="proof-image" onclick="window.open('${req.payment_proof}', '_blank')">
+        </div>
+        
+        ${req.status === 'pending' ? `
+          <div class="actions">
+            <button class="btn small" onclick="approveRequest(${req.id})">
+              <i data-lucide="check"></i> Approve
+            </button>
+            <button class="btn small danger" onclick="rejectRequest(${req.id})">
+              <i data-lucide="x"></i> Reject
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+    
+    lucide.createIcons();
+  } catch (error) {
+    console.error('Error loading requests:', error);
+    alert('Failed to load purchase requests');
+  }
+}
+
+async function approveRequest(requestId) {
+  if (!confirm('Approve this purchase request?')) return;
+  
+  try {
+    const response = await fetch(`http://localhost:5000/api/purchase-request/${requestId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'approved' })
+    });
+
+    if (response.ok) {
+      alert('Purchase approved! Listing marked as sold.');
+      loadPurchaseRequests();
+    } else {
+      const result = await response.json();
+      alert('Error: ' + result.error);
+    }
+  } catch (error) {
+    console.error('Error approving request:', error);
+    alert('Failed to approve request');
+  }
+}
+
+async function rejectRequest(requestId) {
+  if (!confirm('Reject this purchase request?')) return;
+  
+  try {
+    const response = await fetch(`http://localhost:5000/api/purchase-request/${requestId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'rejected' })
+    });
+
+    if (response.ok) {
+      alert('Purchase request rejected.');
+      loadPurchaseRequests();
+    } else {
+      const result = await response.json();
+      alert('Error: ' + result.error);
+    }
+  } catch (error) {
+    console.error('Error rejecting request:', error);
+    alert('Failed to reject request');
+  }
+}
+
+loadPurchaseRequests();
+</script>
+</body>
+</html>

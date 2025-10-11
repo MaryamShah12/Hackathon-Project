@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - Harvest Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .order-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px solid var(--border-light);
+      transition: all var(--transition-base);
+    }
+    .order-card:hover {
+      border-color: var(--fresh-green);
+      box-shadow: var(--shadow-md);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pending {
+      background: rgba(255, 179, 0, 0.15);
+      color: var(--warning);
+    }
+    .status-approved {
+      background: rgba(76, 175, 80, 0.15);
+      color: var(--success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .order-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .order-detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .order-detail-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .order-detail-value {
+      font-size: 1rem;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    .success-message {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideInUp 0.5s ease-out;
+    }
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="buyer.html">Dashboard</a></li>
+        <li><a href="buyer_orders.html" class="active">My Orders</a></li>
+        <li><a href="buyer_analytics.html">Analytics</a></li>
+        <li><a id="logoutBtn"><i data-lucide="log-out"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="dashboard-container">
+    <div class="welcome-banner">
+      <i data-lucide="package"></i>
+      <div>
+        <h2>My Orders</h2>
+        <p>Track your purchase requests and order status</p>
+      </div>
+    </div>
+
+    <div id="ordersContainer"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+lucide.createIcons();
+
+const activeUser = JSON.parse(localStorage.getItem("activeUser"));
+if (!activeUser || activeUser.role !== "buyer") {
+  alert("Unauthorized! Please login as Buyer.");
+  window.location.href = "login.html";
+}
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("activeUser");
+  window.location.href = "login.html";
+});
+
+async function loadOrders() {
+  try {
+    const response = await fetch(`http://localhost:5000/api/purchase-requests/buyer/${activeUser.username}`);
+    const orders = await response.json();
+    
+    const container = document.getElementById('ordersContainer');
+    
+    if (orders.length === 0) {
+      container.innerHTML = '<p class="muted text-center">No orders yet. Start buying from farmers!</p>';
+      return;
+    }
+
+    container.innerHTML = orders.map(order => {
+      let statusIcon = '';
+      let statusText = '';
+      let successMsg = '';
+
+      if (order.status === 'pending') {
+        statusIcon = '<i data-lucide="clock"></i>';
+        statusText = 'PENDING';
+      } else if (order.status === 'approved') {
+        statusIcon = '<i data-lucide="check-circle"></i>';
+        statusText = 'CONFIRMED';
+        successMsg = `
+          <div class="success-message">
+            <i data-lucide="party-popper" style="width: 24px; height: 24px;"></i>
+            <span><strong>Order Confirmed!</strong> Your payment has been verified by the farmer.</span>
+          </div>
+        `;
+      } else if (order.status === 'rejected') {
+        statusIcon = '<i data-lucide="x-circle"></i>';
+        statusText = 'REJECTED';
+      }
+
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <h3>${order.crop_title}</h3>
+            <span class="status-badge status-${order.status}">
+              ${statusIcon} ${statusText}
+            </span>
+          </div>
+
+          <div class="order-details">
+            <div class="order-detail-item">
+              <span class="order-detail-label">Farmer</span>
+              <span class="order-detail-value">${order.farmer_id}</span>
+            </div>
+            <div class="order-detail-item">
+              <span class="order-detail-label">Quantity</span>
+              <span class="order-detail-value">${order.quantity}</span>
+            </div>
+            <div class="order-detail-item">
+              <span class="order-detail-label">Price</span>
+              <span class="order-detail-value">Rs. ${order.price ? order.price.toFixed(2) : 'N/A'}</span>
+            </div>
+            <div class="order-detail-item">
+              <span class="order-detail-label">Ordered On</span>
+              <span class="order-detail-value">${new Date(order.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+
+          ${successMsg}
+
+          ${order.status === 'pending' ? 
+            '<p class="muted" style="margin-top: 12px;"><i data-lucide="info" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i> Waiting for farmer to verify your payment proof...</p>' 
+            : ''}
+          
+          ${order.status === 'rejected' ? 
+            '<p style="color: var(--danger); margin-top: 12px;"><i data-lucide="alert-circle" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i> Payment proof was rejected. Please contact the farmer.</p>' 
+            : ''}
+        </div>
+      `;
+    }).join('');
+    
+    lucide.createIcons();
+  } catch (error) {
+    console.error('Error loading orders:', error);
+    alert('Failed to load orders');
+  }
+}
+
+// Auto-refresh every 10 seconds to check for status updates
+setInterval(loadOrders, 10000);
+
+loadOrders();
+</script>
+</body>
+</html>

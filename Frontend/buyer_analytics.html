@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Analytics – Harvest Hub</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  
+
+  <!-- Design-System -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <style>
+    /* ----- buyer-analytics-specific tweaks ----- */
+    .dashboard-container h2{display:flex;align-items:center;gap:10px}
+    #summary{font-size:1.1rem;margin-bottom:24px}
+    .chart-card{margin-bottom:24px}
+  </style>
+</head>
+
+<body class="dashboard-section">
+<!-- ========== NAVBAR (consistent) ========== -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
+    <ul class="nav-links">
+      <li><a href="buyer.html">Buyer Dashboard</a></li>
+      <li><a href="buyer_analytics.html" class="active">Analytics</a></li>
+      <li><a id="logoutBtn"><i data-lucide="log-out"></i></a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ========== ANALYTICS ========== -->
+<main class="dashboard-container">
+  <h2><i data-lucide="shopping-cart"></i> Buyer Analytics</h2>
+  <p id="summary" class="muted">Loading summary…</p>
+
+  <div id="quantity-chart" class="card chart-card" style="height:400px"></div>
+  <div id="secondary-chart" class="card chart-card" style="height:400px"></div>
+</main>
+
+<!-- ========== SCRIPTS ========== -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  lucide.createIcons();
+  const role = 'buyer';
+</script>
+<script src="analytics.js"></script>
+</body>
+</html>

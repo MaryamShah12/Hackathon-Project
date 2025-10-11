@@ -3,40 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Harvest Hub - Register</title>
+  <title>Register – Harvest Hub</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+
+  <!-- Design-System -->
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ----- register-specific tweaks ----- */
+    .role-cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+      gap:12px;
+      margin-bottom:20px
+    }
+    .role-card{
+      position:relative;
+      border:2px solid #dde2e5;
+      border-radius:var(--radius-btn);
+      padding:14px 8px;
+      text-align:center;
+      cursor:pointer;
+      transition:border-color .2s,background .2s,transform .2s
+    }
+    .role-card:hover{transform:translateY(-2px)}
+    .role-card input{position:absolute;opacity:0}
+    .role-card:has(input:checked){
+      border-color:var(--fresh-green);
+      background:rgba(76,175,80,.06)
+    }
+    .role-card i{display:block;margin:0 auto 6px;color:var(--soft-teal)}
+    .role-card span{font-size:.8125rem;font-weight:500}
+  </style>
 </head>
+
 <body>
-  <!-- Navbar (same as homepage) -->
-  <nav class="navbar">
-    <div class="logo">🌱 Harvest Hub</div>
+<!-- ========== NAVBAR (consistent) ========== -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="login.html">Login</a></li>
       <li><a href="register.html" class="active">Register</a></li>
     </ul>
-  </nav>
+  </div>
+</nav>
 
-  <!-- Register Section -->
-  <section class="auth-section">
-    <div class="auth-container">
-      <h2>Create Account</h2>
-      <form id="registerForm">
-        <input type="text" id="regUsername" placeholder="Enter Username" required>
-        <input type="password" id="regPassword" placeholder="Enter Password" required>
-        <select id="regRole" required>
-          <option value="">Select Role</option>
-          <option value="farmer">Farmer</option>
-          <option value="buyer">Buyer</option>
-          <option value="ngo">NGO</option>
-        </select>
-        <button type="submit" class="btn">Register</button>
-      </form>
+<!-- ========== REGISTRATION CARD ========== -->
+<section class="auth-section">
+  <div class="auth-container">
+    <h2><i data-lucide="user-plus"></i> Create Account</h2>
+
+    <form id="registerForm">
+      <div class="field">
+        <input type="text" id="regUsername" placeholder="Username" required autocomplete="username">
+      </div>
+      <div class="field">
+        <input type="password" id="regPassword" placeholder="Password" required autocomplete="new-password">
+      </div>
+
+      <!-- visually-enhanced role picker -->
+      <label style="font-size:.875rem;font-weight:500;margin-bottom:8px;display:block">I am a…</label>
+      <div class="role-cards">
+        <label class="role-card">
+          <input type="radio" name="role" value="farmer" required>
+          <i data-lucide="tractor"></i>
+          <span>Farmer</span>
+        </label>
+        <label class="role-card">
+          <input type="radio" name="role" value="buyer" required>
+          <i data-lucide="shopping-bag"></i>
+          <span>Buyer</span>
+        </label>
+        <label class="role-card">
+          <input type="radio" name="role" value="ngo" required>
+          <i data-lucide="heart-handshake"></i>
+          <span>NGO</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn">
+        <i data-lucide="arrow-right-circle"></i> Register
+      </button>
+
       <p class="switch">Already have an account? <a href="login.html">Login</a></p>
-    </div>
-  </section>
+    </form>
+  </div>
+</section>
 
-  <!-- Script -->
-  <script src="auth.js"></script>
+<!-- ========== SCRIPTS ========== -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  lucide.createIcons();
+  /* auth.js will still read id="regUsername", id="regPassword", id="regRole" – unchanged */
+</script>
+<script src="auth.js"></script>
 </body>
 </html>

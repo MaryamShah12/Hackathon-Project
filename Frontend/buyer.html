@@ -3,54 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buyer Dashboard - Harvest Hub</title>
+  <title>Buyer Dashboard – Harvest Hub</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/font/lucide.css">
+
+  <!-- Design-System -->
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ----- buyer-specific tweaks ----- */
+    .badge{
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:.75rem;font-weight:500;padding:4px 8px;border-radius:12px
+    }
+    .badge.sell{background:rgba(76,175,80,.12);color:var(--success)}
+    .badge.barter{background:rgba(255,179,0,.12);color:var(--warning)}
+    .badge.donate{background:rgba(38,198,218,.12);color:var(--info)}
+    .listing-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .listing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px}
+    .price{font-family:var(--font-mono);font-size:1.1rem;font-weight:600;color:var(--fresh-green)}
+  </style>
 </head>
+
 <body>
-  <header class="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="logo">🌱 Harvest Hub</a>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="farmer.html">Farmer</a></li>
-          <li><a href="buyer.html" class="active">Buyer</a></li>
-          <li><a href="ngo.html">NGO</a></li>
-          <li><a href="login.html">Login</a></li>
-          <li><a href="register.html">Register</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="card">
-          <h3>Filters</h3>
-          <input id="search" placeholder="Search crops..." />
-          <label>Type</label>
-          <select id="filterType"><option value="all">All</option><option value="sell">Sell</option><option value="barter">Barter</option><option value="donate">Donate</option></select>
-          <label>Sort by</label>
-          <select id="sortBy"><option value="new">Newest</option><option value="priceAsc">Price ↑</option><option value="priceDesc">Price ↓</option></select>
-        </div>
-      </aside>
-
-      <main>
-        <div class="card">
-          <h2>Available Listings</h2>
-          <p class="muted">Buy directly from farmers at fair prices</p>
-        </div>
-        <div id="listings" class="listings-grid" style="margin-top:12px"></div>
-        <div id="panel" class="card" style="margin-top:12px;display:none"></div>
-        <footer>🛒 Harvest Hub — Buyer Dashboard</footer>
-      </main>
-    </div>
+<!-- ========== NAVBAR (consistent) ========== -->
+<header class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <i data-lucide="sprout"></i> Harvest Hub
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="buyer.html" class="active">Buyer</a></li>
+        <li><a href="buyer_orders.html">My Orders</a></li>
+        <li><a href="buyer_analytics.html">Analytics</a></li>
+        <li><a id="logoutBtn"><i data-lucide="log-out"></i></a></li>
+      </ul>
+    </nav>
   </div>
+</header>
 
-  <script>
-  const role = "buyer"; // 🛒 only buyers allowed
+<!-- ========== DASHBOARD ========== -->
+<div class="container">
+  <div class="layout">
+    <!-- Sidebar Filters -->
+    <aside class="sidebar card">
+      <h3><i data-lucide="filter"></i> Filters</h3>
+      <div class="field">
+        <input id="search" type="text" placeholder="Search crops…">
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="filterType">
+          <option value="all">All</option>
+          <option value="sell">Sell</option>
+          <option value="barter">Barter</option>
+          <option value="donate">Donate</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sort by</label>
+        <select id="sortBy">
+          <option value="new">Newest</option>
+          <option value="priceAsc">Price ↑</option>
+          <option value="priceDesc">Price ↓</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- Main Listings -->
+    <main>
+      <div class="card">
+        <div class="listing-header">
+          <h2>Available Listings</h2>
+          <span id="listingCount" class="muted">…</span>
+        </div>
+        <p class="muted">Buy directly from farmers at fair prices</p>
+      </div>
+
+      <div id="listings" class="listings-grid"></div>
+
+      <footer class="footer">🛒 Harvest Hub — Buyer Dashboard</footer>
+    </main>
+  </div>
+</div>
+
+<!-- ========== SCRIPTS ========== -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  lucide.createIcons();
+  const role = "buyer";
 </script>
 <script src="dashboard.js"></script>
-
 </body>
 </html>
